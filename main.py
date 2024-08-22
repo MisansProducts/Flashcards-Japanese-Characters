@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 import random
+import time
 
 class Main:
     def __init__(self, root: tk.Tk):
@@ -36,16 +37,20 @@ class Main:
         self.progress['maximum'] = 1000
 
     def update_character(self):
+        self.start_time = time.time()
         random_character_1, random_character_2 = random.choice(list(zip(self.characters, self.romaji))) # Chooses a random character
         self.character_label.config(text=random_character_1)
         self.romaji_label.config(text=random_character_2)
         self.progress['value'] = 1000 # Resets progress bar
-        self.countdown(1000)
+        self.countdown()
         
-    def countdown(self, ms):
-        if ms >= 0:
-            self.progress['value'] = ms # Updates progress bar
-            root.after(1, self.countdown, ms - 1)
+    def countdown(self):
+        elapsed_time = (time.time() - self.start_time) * 1000
+        remaining_time = 1000 - elapsed_time
+
+        if remaining_time > 0:
+            self.progress['value'] = remaining_time # Updates progress bar
+            root.after(10, self.countdown)
         else:
             self.update_character()
 
