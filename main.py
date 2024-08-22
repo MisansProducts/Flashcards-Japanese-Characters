@@ -35,10 +35,15 @@ class Main:
         self.romaji_label = tk.Label(root, font=("Helvetica", 96))
         self.progress = ttk.Progressbar(root, orient='horizontal', length=200, mode='determinate')
         self.progress['maximum'] = 1000
+        self.character_set = []
 
     def update_character(self):
         self.start_time = time.time()
-        random_character_1, random_character_2 = random.choice(list(zip(self.characters, self.romaji))) # Chooses a random character
+        if not self.character_set:
+            print("New Set")
+            self.character_set = list(zip(self.characters, self.romaji))
+            random.shuffle(self.character_set)
+        random_character_1, random_character_2 = self.character_set.pop()
         self.character_label.config(text=random_character_1)
         self.romaji_label.config(text=random_character_2)
         self.progress['value'] = 1000 # Resets progress bar
