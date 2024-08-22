@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 import random
 
 class Main:
@@ -11,8 +12,9 @@ class Main:
             "な", "に", "ぬ", "ね", "の",
             "は", "ひ", "ふ", "へ", "ほ",
             "ま", "み", "む", "め", "も",
+            "や", "ゆ", "よ",
             "ら", "り", "る", "れ", "ろ",
-            "や", "ゆ", "よ", "わ", "を",
+            "わ", "を",
             "ん"
         )
         self.romaji = (
@@ -23,23 +25,26 @@ class Main:
             "na", "ni", "nu", "ne", "no",
             "ha", "hi", "fu", "he", "ho",
             "ma", "mi", "mu", "me", "mo",
+            "ya", "yu", "yo",
             "ra", "ri", "ru", "re", "ro",
-            "ya", "yu", "yo", "wa", "wo",
+            "wa", "wo",
             "n"
         )
         self.character_label = tk.Label(root, font=("Helvetica", 128))
         self.romaji_label = tk.Label(root, font=("Helvetica", 96))
-        self.time_label = tk.Label(root, font=("Courier New", 24))
+        self.progress = ttk.Progressbar(root, orient='horizontal', length=200, mode='determinate')
+        self.progress['maximum'] = 1000
 
     def update_character(self):
         random_character_1, random_character_2 = random.choice(list(zip(self.characters, self.romaji))) # Chooses a random character
         self.character_label.config(text=random_character_1)
         self.romaji_label.config(text=random_character_2)
+        self.progress['value'] = 1000 # Resets progress bar
         self.countdown(1000)
-    
+        
     def countdown(self, ms):
         if ms >= 0:
-            self.time_label.config(text=str(round(ms / 1000, 1)))
+            self.progress['value'] = ms # Updates progress bar
             root.after(1, self.countdown, ms - 1)
         else:
             self.update_character()
@@ -52,7 +57,7 @@ root.geometry("800x450")
 a = Main(root)
 a.character_label.pack(expand=True)
 a.romaji_label.pack()
-a.time_label.pack()
+a.progress.pack(pady=20)
 
 a.update_character()
 
