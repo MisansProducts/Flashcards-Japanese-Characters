@@ -4,7 +4,7 @@ import random
 import time
 
 class Main:
-    def __init__(self, root: tk.Tk, diffuclty: int):
+    def __init__(self, root: tk.Tk, diffuclty: int, num_choices: int):
         self.characters = (
             "あ", "い", "う", "え", "お",
             "か", "き", "く", "け", "こ",
@@ -32,14 +32,13 @@ class Main:
             "n"
         )
         self.difficulty = difficulty
+        self.num_choices = num_choices
         self.score = 0
         self.total = 0
         self.score_label = tk.Label(root, font=("Helvetica", 24), text="Accuracy: 0.00%")
         self.character_label = tk.Label(root, font=("Helvetica", 128))
         self.choice_frame = tk.Frame(root)
-        self.choice1 = tk.Button(self.choice_frame, font=("Helvetica", 24), height=1, width=4)
-        self.choice2 = tk.Button(self.choice_frame, font=("Helvetica", 24), height=1, width=4)
-        self.choice3 = tk.Button(self.choice_frame, font=("Helvetica", 24), height=1, width=4)
+        self.choices = [tk.Button(self.choice_frame, font=("Helvetica", 24), height=1, width=4) for _button in range(num_choices)]
         self.progress = ttk.Progressbar(root, orient='horizontal', length=200, mode='determinate')
         self.progress['maximum'] = 1000 * difficulty
         self.character_set = []
@@ -60,16 +59,15 @@ class Main:
             random.shuffle(self.character_set)
         hiragana_character, romaji_character = self.character_set.pop()
         choices = [romaji_character]
-        while (len(choices) < 3):
-            random_character = random.choice(self.romaji)
+        romajiCopy = list(self.romaji)
+        random.shuffle(romajiCopy)
+        while (len(choices) < num_choices):
+            random_character = romajiCopy.pop()
             if (random_character != romaji_character):
                 choices.append(random_character)
         random.shuffle(choices)
-        choice1, choice2, choice3 = choices
+        [self.choices[i].config(text=choices[i], command=lambda i=i: self.choose_character(romaji_character, choices[i])) for i in range(num_choices)]
         self.character_label.config(text=hiragana_character)
-        self.choice1.config(text=choice1, command=lambda: self.choose_character(romaji_character, choice1))
-        self.choice2.config(text=choice2, command=lambda: self.choose_character(romaji_character, choice2))
-        self.choice3.config(text=choice3, command=lambda: self.choose_character(romaji_character, choice3))
         self.progress['value'] = 1000 * self.difficulty # Resets progress bar
         self.countdown()
         
@@ -88,13 +86,12 @@ root = tk.Tk()
 root.title("Flashcards")
 root.geometry("800x450")
 difficulty = 2 # 2 seconds
+num_choices = 3 # 3 buttons
 
-a = Main(root, difficulty)
+a = Main(root, difficulty, num_choices)
 a.score_label.pack(anchor="e")
 a.character_label.pack(expand=True)
-a.choice1.grid(row=0, column=0)
-a.choice2.grid(row=0, column=1)
-a.choice3.grid(row=0, column=2)
+[a.choices[i].grid(row=0, column=i) for i in range(num_choices)]
 a.choice_frame.pack()
 a.progress.pack(pady=20)
 
