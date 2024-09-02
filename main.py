@@ -1,7 +1,8 @@
+import random
+import json
+import time
 import tkinter as tk
 from tkinter import ttk
-import random
-import time
 
 class Main:
     # Class variables - Static
@@ -38,6 +39,7 @@ class Main:
         self.score = 0
         self.total = 0
         self.character_set = []
+        self.mistake_set = {c: set() for c in self.romaji}
 
         # Builds app elements
         self.score_label = tk.Label(root, font=("Helvetica", 24), text="Accuracy: 0.00%")
@@ -49,6 +51,8 @@ class Main:
     def choose_character(self, expected, actual):
         if (expected == actual):
             self.score += 1
+        else:
+            self.mistake_set[expected].add(actual)
         self.score_label.config(text=f"Accuracy: {(self.score / self.total) * 100:.2f}%")
         self.update_character()
 
@@ -94,21 +98,33 @@ class Main:
             self.score_label.config(text=f"Accuracy: {(self.score / self.total) * 100:.2f}%")
             self.update_character()
 
-# Create the main window
-root = tk.Tk()
-root.title("Flashcards")
-root.geometry("800x450")
-difficulty = 3
-num_choices = 3
+#======Execution Check======
+if __name__ == "__main__":
+    # Variables
+    difficulty = 3
+    num_choices = 3
 
-a = Main(root, difficulty, num_choices)
-a.score_label.pack(anchor="e")
-a.character_label.pack(expand=True)
-[a.choices[i].grid(row=0, column=i) for i in range(num_choices)]
-a.choice_frame.pack()
-a.progress.pack(pady=20)
+    # Creates the main window
+    root = tk.Tk()
+    root.title("Flashcards")
+    root.geometry("800x450")
+    main = Main(root, difficulty, num_choices)
+    try:
+        with open('mistakes.json', 'r') as file:
+            main.mistake_set = dict(json.load(file))
+            main.mistake_set = {key: set(value) for key, value in main.mistake_set.items()}
+    except:
+        pass
+    main.score_label.pack(anchor="e")
+    main.character_label.pack(expand=True)
+    [main.choices[i].grid(row=0, column=i) for i in range(num_choices)]
+    main.choice_frame.pack()
+    main.progress.pack(pady=20)
+    main.update_character()
+    root.mainloop()
 
-a.update_character()
-
-# Run the Tkinter event loop
-root.mainloop()
+    # Logs mistakes
+    main.mistake_set = {key: list(value) for key, value in main.mistake_set.items()} # JSON does not support set data type
+    mistakes = json.dumps(main.mistake_set, indent=4)
+    with open('mistakes.json', 'w', encoding='utf-8', newline='\n') as file:
+        file.write(mistakes)
